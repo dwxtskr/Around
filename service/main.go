@@ -88,7 +88,8 @@ func handlerPost(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// fmt.Fprintf(w, "Post received: %s\n", p.Message)
+	fmt.Printf( "Post is saved to Index: %s\n", p.Message)
+	
 	id := uuid.New()
 	ctx := context.Background()
 	// you must update project name here
