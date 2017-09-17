@@ -11,7 +11,6 @@ import (
 	"context"
 	"cloud.google.com/go/bigtable"
 	"github.com/pborman/uuid"
-
 )
 
 const (
@@ -88,9 +87,28 @@ func handlerPost(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	fmt.Printf( "Post is saved to Index: %s\n", p.Message)
-	
+	// Create a elastic search client
+	client, err := elastic.NewClient(elastic.SetURL(ES_URL), elastic.SetSniff(false))
+	if err != nil {
+		panic(err)
+		return
+	}
 	id := uuid.New()
+
+	// Add a document to the index
+	_, err = client.Index().
+		Index(INDEX).
+		Type(TYPE).
+		Id(id).
+		BodyJson(p).
+		Refresh(true).
+		Do()
+	if err != nil {
+		// Handle error
+		panic(err)
+	}
+
+	// create bigtable client
 	ctx := context.Background()
 	// you must update project name here
 	bt_client, err := bigtable.NewClient(ctx, PROJECT_ID, BT_INSTANCE)
